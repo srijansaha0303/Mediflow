@@ -10,9 +10,11 @@ Table of Contents
 
 4. Usage
 
-5. Contributing
+5. Contact
 
-6. Contact
+
+
+
 
 1. Features-
 Pill Alerts
@@ -46,7 +48,7 @@ Mobile Notifications: FCM / Twilio / Custom
 
 IoT: Arduino 
 
-Installation
+3. Installation
 Clone the repository:
 
 text
@@ -63,12 +65,10 @@ Run the application:
 text
 npm run dev
 
-Usage
+4. Usage
 Register as a patient, caregiver, or clinic administrator.
 
 Set up medication schedules and receive smart alerts.
 
 Check in for appointments, view real-time queue status, and receive notifications when it's time to be seen.
 
-Contributing
-We welcome contributions! Please open issues and submit pull requests following our code of conduct.
