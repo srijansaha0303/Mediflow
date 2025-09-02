@@ -16,7 +16,7 @@ Table of Contents
 
 
 
-=> Features-
+=> Features:
 
 Pill Alerts
 
@@ -40,9 +40,9 @@ Analytics for workflow optimization
 
 => Technologies Used
 
-Backend: Python 
+Backend: Python
 
-Frontend: Next.js 
+Frontend: React.js
 
 Database: SQL 
 
