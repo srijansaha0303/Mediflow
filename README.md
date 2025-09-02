@@ -17,6 +17,7 @@ Table of Contents
 
 
 => Features-
+
 Pill Alerts
 
 Automated reminders for medication times
@@ -38,6 +39,7 @@ Automated notifications and reminders
 Analytics for workflow optimization
 
 => Technologies Used
+
 Backend: Python 
 
 Frontend: Next.js 
@@ -51,21 +53,18 @@ IoT: Arduino
 => Installation
 Clone the repository:
 
-text
 git clone https://github.com/<yourorg>/mediflow.git
 cd mediflow
 Install dependencies:
 
-text
 npm install
 Configure environment variables as per .env.example.
 
 Run the application:
-
-text
 npm run dev
 
 => Usage
+
 Register as a patient, caregiver, or clinic administrator.
 
 Set up medication schedules and receive smart alerts.
