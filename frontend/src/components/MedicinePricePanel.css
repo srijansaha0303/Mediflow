@@ -1,0 +1,68 @@
+/* src/components/MedicinePricePanel.css */
+
+.medicine-price-panel {
+  background-color: #f4f4f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+.medicine-price-panel h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.medicine-price-panel input,
+.medicine-price-panel button {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.medicine-price-panel button {
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+}
+
+.medicine-price-panel button:disabled {
+  background-color: #ccc;
+}
+
+.medicine-price-panel .error {
+  color: red;
+  text-align: center;
+}
+
+.medicine-price-panel .medicine-details {
+  margin-top: 20px;
+}
+
+.medicine-price-panel .medicine-details ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.medicine-price-panel .medicine-details li {
+  background-color: #fff;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.medicine-price-panel .medicine-details li button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}

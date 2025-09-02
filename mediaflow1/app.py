@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Enables cross-origin requests
+from flask_cors import CORS
 from db import get_db_connection, create_tables
 from data import seed_data
 import openai
@@ -137,5 +137,42 @@ def symptom_chatbot():
     except Exception as e:
         return jsonify({'reply': "Sorry, something went wrong. Please try again later."}), 500
 
+# ----------------- Medicine Price Comparison -----------------
+@app.route("/api/medicine_data", methods=["GET"])
+def get_medicine_data():
+    medicine_name = request.args.get("name")
+    if not medicine_name:
+        return jsonify({"error": "Medicine name is required"}), 400
+
+    conn = get_db_connection()
+    medicine_info = conn.execute(
+        """
+        SELECT brand_name, generic_name, brand_price, generic_price
+        FROM medicine_info
+        WHERE brand_name LIKE ?
+        """, (f"%{medicine_name}%",)
+    ).fetchall()
+    conn.close()
+
+    if not medicine_info:
+        return jsonify({"error": "Medicine not found"}), 404
+
+    # Assuming you have a function to fetch local stores
+    local_stores = get_local_stores(medicine_name)
+
+    return jsonify({
+        "medicine": medicine_info,
+        "stores": local_stores
+    })
+
+def get_local_stores(medicine_name):
+    # Placeholder function to simulate fetching local store data
+    # Replace with actual database queries or API calls
+    return [
+        {"name": "Local Pharmacy A", "contact": "123-456-7890", "delivery": True},
+        {"name": "Local Pharmacy B", "contact": "987-654-3210", "delivery": False}
+    ]
+
 if __name__ == "__main__":
     app.run(debug=True)
+
