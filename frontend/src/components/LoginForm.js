@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
+import { UserContext } from '../context/UserContext';
 
 const Form = styled.form`
   display: flex;
