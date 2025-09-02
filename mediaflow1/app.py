@@ -1,8 +1,14 @@
 from flask import Flask, request, jsonify
 from db import get_db_connection, create_tables
+from data import seed_data
 
 app = Flask(__name__)
 create_tables()
+
+@app.route("/reset", methods=["POST"])
+def reset_db():
+    seed_data()
+    return {"message": "✅ Database reset with 10 records per table!"}
 
 # ----------------- Patients -----------------
 @app.route("/patients", methods=["GET"])
