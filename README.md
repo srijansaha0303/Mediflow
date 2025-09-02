@@ -16,7 +16,7 @@ Table of Contents
 
 
 
-1. Features-
+=> Features-
 Pill Alerts
 
 Automated reminders for medication times
@@ -37,18 +37,18 @@ Automated notifications and reminders
 
 Analytics for workflow optimization
 
-2. Technologies Used
-Backend: Node.js / Python 
+=> Technologies Used
+Backend: Python 
 
-Frontend: React / Flutter 
+Frontend: Next.js 
 
-Database: MongoDB / Firebase / SQL 
+Database: SQL 
 
 Mobile Notifications: FCM / Twilio / Custom
 
 IoT: Arduino 
 
-3. Installation
+=> Installation
 Clone the repository:
 
 text
@@ -65,7 +65,7 @@ Run the application:
 text
 npm run dev
 
-4. Usage
+=> Usage
 Register as a patient, caregiver, or clinic administrator.
 
 Set up medication schedules and receive smart alerts.
