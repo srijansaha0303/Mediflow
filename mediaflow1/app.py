@@ -1,8 +1,13 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # Enables cross-origin requests
 from db import get_db_connection, create_tables
 from data import seed_data
+import openai
+import os
 
 app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "*"}})  # Allow CORS on all /api routes
+
 create_tables()
 
 @app.route("/reset", methods=["POST"])
@@ -88,7 +93,7 @@ def add_medicine_info():
     conn.close()
     return jsonify({"message": "Medicine info added ✅"})
 
-# ----------------- Medications (prescriptions) -----------------
+# ----------------- Medications (Prescriptions) -----------------
 @app.route("/medications", methods=["GET"])
 def get_medications():
     conn = get_db_connection()
@@ -113,6 +118,24 @@ def add_medication():
     conn.commit()
     conn.close()
     return jsonify({"message": "Medication added ✅"})
+
+# ----------------- Symptom Checker Chatbot -----------------
+openai.api_key = os.getenv("OPENAI_API_KEY")  # Secure key via environment variable
+
+@app.route("/api/symptom-chatbot", methods=["POST"])
+def symptom_chatbot():
+    user_message = request.json.get("message", "")
+    if not user_message:
+        return jsonify({'reply': 'Please enter your symptoms.'}), 400
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{'role': 'user', 'content': user_message}]
+        )
+        bot_reply = response.choices[0].message.content.strip()
+        return jsonify({'reply': bot_reply})
+    except Exception as e:
+        return jsonify({'reply': "Sorry, something went wrong. Please try again later."}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
