@@ -1,96 +1,88 @@
 # data.py
-from db import get_db_connection
+from db import get_db_connection, create_tables
 
-def seed_data():
+def clear_tables():
+    """Delete all data from all tables in the correct order (respecting foreign keys)."""
     conn = get_db_connection()
-    
-    # Clear existing data
-    conn.execute("DELETE FROM medications")
-    conn.execute("DELETE FROM appointments")
-    conn.execute("DELETE FROM medicine_info")
-    conn.execute("DELETE FROM patients")
-    conn.execute("DELETE FROM doctors")
-    conn.commit()
-    
-    # ----------------- Patients -----------------
-    patients = [
-        ("Alice Johnson", 30, "Diabetes"),
-        ("Bob Smith", 45, "Hypertension"),
-        ("Charlie Lee", 28, "Asthma"),
-        ("David Kim", 50, "Arthritis"),
-        ("Eva Brown", 35, "Migraine"),
-        ("Frank White", 40, "Heart Disease"),
-        ("Grace Green", 32, "Anemia"),
-        ("Hannah Black", 27, "Allergies"),
-        ("Ian Clark", 60, "COPD"),
-        ("Julia Adams", 22, "Flu")
-    ]
-    for p in patients:
-        conn.execute("INSERT INTO patients (name, age, condition) VALUES (?, ?, ?)", p)
-    
-    # ----------------- Doctors -----------------
-    doctors = [
-        ("Dr. Smith", "Cardiology"),
-        ("Dr. Johnson", "Neurology"),
-        ("Dr. Lee", "Pulmonology"),
-        ("Dr. Kim", "Orthopedics"),
-        ("Dr. Brown", "General Medicine"),
-        ("Dr. White", "Dermatology"),
-        ("Dr. Green", "Pediatrics"),
-        ("Dr. Black", "ENT"),
-        ("Dr. Clark", "Ophthalmology"),
-        ("Dr. Adams", "Psychiatry")
-    ]
-    for d in doctors:
-        conn.execute("INSERT INTO doctors (name, specialization) VALUES (?, ?)", d)
-    
-    # ----------------- Medicine Info -----------------
-    medicines = [
-        ("Panadol", "Paracetamol", 50, 20),
-        ("Amoxil", "Amoxicillin", 120, 80),
-        ("Ventolin", "Salbutamol", 150, 100),
-        ("Lipitor", "Atorvastatin", 200, 150),
-        ("Nexium", "Esomeprazole", 180, 130),
-        ("Augmentin", "Amoxicillin-Clavulanate", 220, 170),
-        ("Motrin", "Ibuprofen", 70, 30),
-        ("Zyrtec", "Cetirizine", 90, 50),
-        ("Glucophage", "Metformin", 110, 70),
-        ("Lisinopril", "Lisinopril", 130, 90)
-    ]
-    for m in medicines:
-        conn.execute("INSERT INTO medicine_info (brand_name, generic_name, brand_price, generic_price) VALUES (?, ?, ?, ?)", m)
-    
-    # ----------------- Appointments -----------------
-    appointments = [
-        (1, 1, "2025-09-01", "Routine checkup"),
-        (2, 2, "2025-09-02", "Follow-up"),
-        (3, 3, "2025-09-03", "Asthma treatment"),
-        (4, 4, "2025-09-04", "Knee pain"),
-        (5, 5, "2025-09-05", "Migraine management"),
-        (6, 6, "2025-09-06", "Heart evaluation"),
-        (7, 7, "2025-09-07", "Anemia treatment"),
-        (8, 8, "2025-09-08", "Allergy consultation"),
-        (9, 9, "2025-09-09", "COPD check"),
-        (10, 10, "2025-09-10", "Flu symptoms")
-    ]
-    for a in appointments:
-        conn.execute("INSERT INTO appointments (patient_id, doctor_id, date, notes) VALUES (?, ?, ?, ?)", a)
-    
-    # ----------------- Medications -----------------
-    medications = [
-        (1, 1, "500mg twice a day"),
-        (2, 2, "250mg three times a day"),
-        (3, 3, "2 puffs as needed"),
-        (4, 4, "10mg once a day"),
-        (5, 5, "20mg once a day"),
-        (6, 6, "500mg once a day"),
-        (7, 7, "Iron supplement once a day"),
-        (8, 8, "10mg once a day"),
-        (9, 9, "500mg twice a day"),
-        (10, 10, "10mg once a day")
-    ]
-    for m in medications:
-        conn.execute("INSERT INTO medications (patient_id, medicine_id, dosage) VALUES (?, ?, ?)", m)
-    
+    cur = conn.cursor()
+
+    # First clear child tables
+    cur.execute("DELETE FROM appointments")
+    cur.execute("DELETE FROM medications")
+
+    # Then clear parent tables
+    cur.execute("DELETE FROM patients")
+    cur.execute("DELETE FROM doctors")
+    cur.execute("DELETE FROM medicine_info")
+
     conn.commit()
     conn.close()
+
+def seed_data():
+    """Insert sample data into all tables (10 rows each)."""
+    create_tables()   # Ensure tables exist
+    clear_tables()    # Reset tables before seeding
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # ---------------- Patients ----------------
+    patients = [
+        ("Alice Smith", 30, "Flu"),
+        ("Bob Johnson", 45, "Diabetes"),
+        ("Charlie Lee", 50, "Hypertension"),
+        ("David Brown", 65, "Arthritis"),
+        ("Eve Davis", 25, "Asthma"),
+        ("Frank Wilson", 55, "Heart Disease"),
+        ("Grace Martinez", 40, "Migraine"),
+        ("Henry Taylor", 35, "Back Pain"),
+        ("Ivy Thomas", 28, "Allergy"),
+        ("Jack White", 60, "Cancer"),
+    ]
+    cur.executemany("INSERT INTO patients (name, age, condition) VALUES (?, ?, ?)", patients)
+
+    # ---------------- Doctors ----------------
+    doctors = [
+        ("Dr. Adams", "Cardiology"),
+        ("Dr. Baker", "Neurology"),
+        ("Dr. Clark", "General Medicine"),
+        ("Dr. Davis", "Orthopedics"),
+        ("Dr. Evans", "Dermatology"),
+        ("Dr. Foster", "Psychiatry"),
+        ("Dr. Green", "Pediatrics"),
+        ("Dr. Harris", "Oncology"),
+        ("Dr. Johnson", "Endocrinology"),
+        ("Dr. King", "Gastroenterology"),
+    ]
+    cur.executemany("INSERT INTO doctors (name, specialization) VALUES (?, ?)", doctors)
+
+    # ---------------- Medicine Info ----------------
+    medicines = [
+        ("Crocin", "Paracetamol", 20.0, 5.0),
+        ("Augmentin", "Amoxicillin", 150.0, 40.0),
+        ("Lipitor", "Atorvastatin", 200.0, 60.0),
+        ("Metformin", "Metformin", 100.0, 30.0),
+        ("Zyrtec", "Cetirizine", 50.0, 15.0),
+        ("Aspirin", "Acetylsalicylic Acid", 80.0, 20.0),
+        ("Nexium", "Esomeprazole", 180.0, 50.0),
+        ("Prozac", "Fluoxetine", 250.0, 70.0),
+        ("Ventolin", "Salbutamol", 120.0, 35.0),
+        ("Synthroid", "Levothyroxine", 90.0, 25.0),
+    ]
+    cur.executemany(
+        "INSERT INTO medicine_info (brand_name, generic_name, brand_price, generic_price) VALUES (?, ?, ?, ?)",
+        medicines
+    )
+
+    # ---------------- Appointments ----------------
+    appointments = [
+        (1, 1, "2025-09-10 10:00", "Follow-up checkup"),
+        (2, 2, "2025-09-11 14:00", "Routine diabetes review"),
+        (3, 3, "2025-09-12 09:30", "Blood pressure monitoring"),
+        (4, 4, "2025-09-13 11:00", "Knee pain consultation"),
+        (5, 5, "2025-09-14 16:00", "Asthma review"),
+        (6, 6, "2025-09-15 10:15", "Cardiac evaluation"),
+        (7, 7, "2025-09-16 13:00", "Migraine treatment"),
+        (8, 8, "2025-09-17 15:30", "Back pain therapy"),
+        (9, 9, "2025-09-18 12:00", "Allergy test"),
+        (10, 10, "2025-09-19 09:00", "Oncology consultation"),]

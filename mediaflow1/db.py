@@ -1,8 +1,10 @@
+# db.py
 import sqlite3
 
 def get_db_connection():
     conn = sqlite3.connect("hospital.db")
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON;")  # ✅ Ensure constraints work
     return conn
 
 def create_tables():
@@ -28,16 +30,14 @@ def create_tables():
         )
     """)
 
-    # Appointments Table
+    # Medicine Info Table (must exist before medications)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS appointments (
+        CREATE TABLE IF NOT EXISTS medicine_info (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            patient_id INTEGER NOT NULL,
-            doctor_id INTEGER NOT NULL,
-            date TEXT NOT NULL,
-            notes TEXT,
-            FOREIGN KEY (patient_id) REFERENCES patients (id),
-            FOREIGN KEY (doctor_id) REFERENCES doctors (id)
+            brand_name TEXT NOT NULL,
+            generic_name TEXT NOT NULL,
+            brand_price REAL NOT NULL,
+            generic_price REAL NOT NULL
         )
     """)
 
@@ -53,14 +53,16 @@ def create_tables():
         )
     """)
 
-    # Medicine Info Table
+    # Appointments Table
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS medicine_info (
+        CREATE TABLE IF NOT EXISTS appointments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            brand_name TEXT NOT NULL,
-            generic_name TEXT NOT NULL,
-            brand_price REAL NOT NULL,
-            generic_price REAL NOT NULL
+            patient_id INTEGER NOT NULL,
+            doctor_id INTEGER NOT NULL,
+            date TEXT NOT NULL,
+            notes TEXT,
+            FOREIGN KEY (patient_id) REFERENCES patients (id),
+            FOREIGN KEY (doctor_id) REFERENCES doctors (id)
         )
     """)
 
@@ -69,4 +71,4 @@ def create_tables():
 
 if __name__ == "__main__":
     create_tables()
-    print("✅ 5 tables created successfully")
+    print("✅ Tables created successfully (patients, doctors, medicine_info, medications, appointments)")

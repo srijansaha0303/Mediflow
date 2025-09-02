@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import './MedicinePricePanel.css'; // Optional: for custom styling
+import './MedicinePricePanel.css';
 
 const MedicinePricePanel = () => {
   const [medicineName, setMedicineName] = useState('');
-  const [medicineData, setMedicineData] = useState(null);
+  const [medicineData, setMedicineData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -19,13 +19,17 @@ const MedicinePricePanel = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get(`/api/getMedicineData?name=${medicineName}`);
+      const response = await axios.get(`/api/medicine_data?name=${medicineName}`);
       setMedicineData(response.data);
     } catch (err) {
       setError('Failed to fetch data. Please try again later.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleContactStore = (storeId) => {
+    alert(`Contacting store with ID: ${storeId}`);
   };
 
   return (
@@ -43,30 +47,29 @@ const MedicinePricePanel = () => {
 
       {error && <p className="error">{error}</p>}
 
-      {medicineData && (
-        <div className="medicine-details">
-          <h3>Brand: {medicineData.brand.name}</h3>
-          <p>Price: ₹{medicineData.brand.price}</p>
-          <h4>Generic Alternatives:</h4>
-          <ul>
-            {medicineData.generics.map((generic, index) => (
-              <li key={index}>
-                <strong>{generic.name}</strong> - ₹{generic.price}
-                <button onClick={() => handleContactStore(generic.storeId)}>
-                  Contact Store
-                </button>
-              </li>
-            ))}
-          </ul>
+      {medicineData.length > 0 && (
+        <div className="medicine-results">
+          {medicineData.map((med, idx) => (
+            <div key={idx} className="medicine-details">
+              <h3>Brand: {med.brand.name}</h3>
+              <p>Price: ₹{med.brand.price}</p>
+              <h4>Generic Alternatives:</h4>
+              <ul>
+                {med.generics.map((generic, index) => (
+                  <li key={index}>
+                    <strong>{generic.name}</strong> - ₹{generic.price}
+                    <button onClick={() => handleContactStore(generic.storeId)}>
+                      Contact Store
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       )}
     </div>
   );
 };
 
-const handleContactStore = (storeId) => {
-  alert(`Contacting store with ID: ${storeId}`);
-};
-
 export default MedicinePricePanel;
-

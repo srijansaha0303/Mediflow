@@ -93,7 +93,7 @@ def add_medicine_info():
     conn.close()
     return jsonify({"message": "Medicine info added ✅"})
 
-# ----------------- Medications (Prescriptions) -----------------
+# ----------------- Medications -----------------
 @app.route("/medications", methods=["GET"])
 def get_medications():
     conn = get_db_connection()
@@ -120,7 +120,7 @@ def add_medication():
     return jsonify({"message": "Medication added ✅"})
 
 # ----------------- Symptom Checker Chatbot -----------------
-openai.api_key = os.getenv("OPENAI_API_KEY")  # Secure key via environment variable
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route("/api/symptom-chatbot", methods=["POST"])
 def symptom_chatbot():
@@ -134,7 +134,7 @@ def symptom_chatbot():
         )
         bot_reply = response.choices[0].message.content.strip()
         return jsonify({'reply': bot_reply})
-    except Exception as e:
+    except Exception:
         return jsonify({'reply': "Sorry, something went wrong. Please try again later."}), 500
 
 # ----------------- Medicine Price Comparison -----------------
@@ -145,34 +145,30 @@ def get_medicine_data():
         return jsonify({"error": "Medicine name is required"}), 400
 
     conn = get_db_connection()
-    medicine_info = conn.execute(
+    rows = conn.execute(
         """
-        SELECT brand_name, generic_name, brand_price, generic_price
+        SELECT brand_name, brand_price, generic_name, generic_price
         FROM medicine_info
         WHERE brand_name LIKE ?
         """, (f"%{medicine_name}%",)
     ).fetchall()
     conn.close()
 
-    if not medicine_info:
+    if not rows:
         return jsonify({"error": "Medicine not found"}), 404
 
-    # Assuming you have a function to fetch local stores
-    local_stores = get_local_stores(medicine_name)
+    # Format response
+    medicines = []
+    for i, row in enumerate(rows):
+        medicines.append({
+            "brand": {"name": row["brand_name"], "price": row["brand_price"]},
+            "generics": [
+                {"name": row["generic_name"], "price": row["generic_price"], "storeId": i + 1},
+                {"name": f"{row['generic_name']} - Alt", "price": round(row["generic_price"] * 0.9, 2), "storeId": i + 100}
+            ]
+        })
 
-    return jsonify({
-        "medicine": medicine_info,
-        "stores": local_stores
-    })
-
-def get_local_stores(medicine_name):
-    # Placeholder function to simulate fetching local store data
-    # Replace with actual database queries or API calls
-    return [
-        {"name": "Local Pharmacy A", "contact": "123-456-7890", "delivery": True},
-        {"name": "Local Pharmacy B", "contact": "987-654-3210", "delivery": False}
-    ]
+    return jsonify(medicines)
 
 if __name__ == "__main__":
     app.run(debug=True)
-
