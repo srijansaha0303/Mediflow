@@ -1,3 +1,5 @@
+# pyright: ignore[reportMissingImports]
+
 from flask import Flask, request, jsonify
 from db import get_connection, init_db
 
