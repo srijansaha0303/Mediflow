@@ -3,12 +3,32 @@ import styled from 'styled-components';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 
+
 const Container = styled.div`
   height: 100vh;
-  background: url('/assets/bg-login.jpg') no-repeat center center/cover;
+  background: linear-gradient(135deg, #1e3c72, #2a5298); /* Blue gradient background */
   display: flex;
+  flex-direction: column; /* Arrange vertically */
   justify-content: center;
   align-items: center;
+  padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+`;
+
+const AppTitle = styled.h1`
+  color: white;
+  font-size: 4rem;
+  font-weight: 900;
+  margin-bottom: 0.2rem;
+  user-select: none;
+`;
+
+const Tagline = styled.p`
+  color: #c8d6e5;
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  font-style: italic;
+  user-select: none;
 `;
 
 const Box = styled.div`
@@ -17,6 +37,7 @@ const Box = styled.div`
   border-radius: 20px;
   max-width: 400px;
   text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 `;
 
 const Input = styled.input`
@@ -25,6 +46,7 @@ const Input = styled.input`
   margin-bottom: 15px;
   border-radius: 8px;
   border: 1.5px solid #ccc;
+  font-size: 1rem;
   &:focus {
     border-color: #764ba2;
     outline: none;
@@ -41,6 +63,7 @@ const Button = styled.button`
   border-radius: 8px;
   cursor: pointer;
   margin-bottom: 10px;
+  font-size: 1.1rem;
 `;
 
 export default function LoginPage() {
@@ -71,18 +94,21 @@ export default function LoginPage() {
 
   return (
     <Container>
+      <AppTitle>Mediflow</AppTitle>
+      <Tagline>Your health companion, anytime, anywhere.</Tagline>
+
       <Box>
         <h2>Login</h2>
         <form onSubmit={handleLogin}>
-          <Input 
-            type="email" 
-            placeholder="Email" 
-            value={email} 
-            onChange={e => setEmail(e.target.value)} 
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
             required
           />
-          <Input 
-            type="password" 
+          <Input
+            type="password"
             placeholder="Password"
             value={password}
             onChange={e => setPassword(e.target.value)}

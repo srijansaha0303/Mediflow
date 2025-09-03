@@ -1,6 +1,5 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { UserContext } from '../context/UserContext';
 
 const Container = styled.div`
   padding: 2rem;
@@ -18,16 +17,22 @@ const DoctorItem = styled.div`
 `;
 
 export default function DoctorList() {
-  const { doctors, setDoctors } = useContext(UserContext);
+  const [doctors, setDoctors] = useState([]);
 
   useEffect(() => {
-    // Mock loading doctors nearby with reviews
-    setDoctors([
-      { name: 'Dr. Sarah Connor', specialty:'Cardiologist', rating:4.8, reviews:120 },
-      { name: 'Dr. John Smith', specialty:'Dermatologist', rating:4.4, reviews:89 },
-      { name: 'Dr. Alan Turing', specialty:'Neurologist', rating:4.9, reviews:200 }
-    ]);
-  }, [setDoctors]);
+    async function fetchDoctors() {
+      try {
+        const response = await fetch('http://localhost:5000/doctors'); // Adjust URL if Flask runs on different host/port
+        if (!response.ok) throw new Error('Network error');
+        const data = await response.json();
+        setDoctors(data);
+      } catch (error) {
+        console.error('Failed to fetch doctors:', error);
+        setDoctors([]);
+      }
+    }
+    fetchDoctors();
+  }, []);
 
   return (
     <Container>
@@ -35,11 +40,10 @@ export default function DoctorList() {
       {doctors.length === 0 ? (
         <p>Loading doctors...</p>
       ) : (
-        doctors.map((doc, idx) => (
-          <DoctorItem key={idx}>
+        doctors.map((doc) => (
+          <DoctorItem key={doc.id}>
             <h3>{doc.name}</h3>
-            <p>Specialty: {doc.specialty}</p>
-            <p>Rating: {doc.rating} ⭐ ({doc.reviews} reviews)</p>
+            <p>Specialty: {doc.specialization}</p>
           </DoctorItem>
         ))
       )}

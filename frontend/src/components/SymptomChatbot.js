@@ -1,77 +1,63 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
 
-const Container = styled.div`
-  background: white;
-  max-width: 600px;
-  margin: 2rem auto;
-  border-radius: 15px;
-  padding: 1.5rem;
-  box-shadow: 0 3px 15px rgba(0,0,0,0.2);
-  font-family: 'Poppins', sans-serif;
-`;
-
-const ChatLog = styled.div`
-  height: 300px;
-  overflow-y: auto;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-`;
-
-const Message = styled.div`
-  margin-bottom: 0.8rem;
-  font-weight: ${({ sender }) => (sender === 'bot' ? '700' : '400')};
-  color: ${({ sender }) => (sender === 'bot' ? '#764ba2' : '#333')};
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  outline: none;
-`;
-
-export default function SymptomChatbot() {
-  const [log, setLog] = useState([
-    { sender: 'bot', text: 'Hello! Tell me your symptoms.' }
+function SymptomChatbot() {
+  const [messages, setMessages] = useState([
+    { from: 'bot', text: 'Hi! Tell me your symptoms.' }
   ]);
   const [input, setInput] = useState('');
+  const messagesEndRef = useRef(null);
 
-  function handleSend(e) {
-    e.preventDefault();
+  // Auto scroll to bottom on new message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const sendMessage = async () => {
     if (!input.trim()) return;
 
-    const userMessage = { sender: 'user', text: input.trim() };
-    setLog([...log, userMessage]);
-
-    // Simple bot reply example
-    const botReply = { sender: 'bot', text: `Thanks for sharing. For "${input.trim()}", consider seeing a doctor or taking rest.` };
-    setTimeout(() => {
-      setLog(current => [...current, botReply]);
-    }, 1000);
-
+    const userMsg = { from: 'user', text: input };
+    setMessages(prev => [...prev, userMsg]);
     setInput('');
-  }
+
+    try {
+      const res = await axios.post('/api/symptom-chatbot', { message: input });
+
+      // Defensive in case backend returns different field
+      const botReply =
+        res.data.reply || res.data.message || 'I didn’t understand that.';
+
+      setMessages(prev => [...prev, { from: 'bot', text: botReply }]);
+    } catch (err) {
+      setMessages(prev => [
+        ...prev,
+        { from: 'bot', text: 'Sorry, something went wrong.' }
+      ]);
+    }
+  };
 
   return (
-    <Container>
-      <ChatLog>
-        {log.map((msg, idx) => (
-          <Message key={idx} sender={msg.sender}>
-            {msg.text}
-          </Message>
+    <div className="chatbot">
+      <div className="messages">
+        {messages.map((m, i) => (
+          <div key={i} className={`message ${m.from}`}>
+            {m.text}
+          </div>
         ))}
-      </ChatLog>
-      <form onSubmit={handleSend}>
-        <Input 
-          value={input} 
-          onChange={e => setInput(e.target.value)} 
-          placeholder="Type your symptoms here..."
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div className="input-area">
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && sendMessage()}
+          placeholder="Describe your symptoms..."
         />
-      </form>
-    </Container>
+        <button onClick={sendMessage}>Send</button>
+      </div>
+    </div>
   );
 }
+
+export default SymptomChatbot;

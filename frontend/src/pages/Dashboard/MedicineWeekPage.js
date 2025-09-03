@@ -1,44 +1,28 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useContext } from 'react';
+import MedicineWeek from '../../components/MedicineWeek';
+import { UserContext } from '../../context/UserContext';
 
-const Container = styled.div`
-  background: rgba(255,255,255,0.95);
-  border-radius: 20px;
-  padding: 2rem;
-  max-width: 700px;
-  margin: 2rem auto;
-  font-family: 'Poppins', sans-serif;
-`;
+export default function MedicineWeekPage() {
+  const { medications } = useContext(UserContext);
 
-const Title = styled.h2`
-  margin-bottom: 1.5rem;
-`;
+  // Assuming medications is an array with all medicine entries for the week
+  // If you have a different structure, adjust accordingly
+  
+  // Example grouping meds by day for display (mock, adapt as necessary)
+  const medsByDay = {
+    Monday: medications,
+    Tuesday: medications,
+    Wednesday: medications,
+    Thursday: medications,
+    Friday: medications,
+    Saturday: medications,
+    Sunday: medications,
+  };
 
-const DaySection = styled.div`
-  margin-bottom: 1rem;
-`;
-
-const MedicineItem = styled.li`
-  font-weight: 600;
-  margin-bottom: 0.3rem;
-`;
-
-export default function MedicineWeek({ weeklyMeds }) {
   return (
-    <Container>
-      <Title>Medicines for the Week</Title>
-      {Object.entries(weeklyMeds).map(([day, meds]) => (
-        <DaySection key={day}>
-          <h3>{day}</h3>
-          <ul>
-            {meds.map((med, i) => (
-              <MedicineItem key={i}>
-                {med.name} at {med.time} – Dose: {med.dose} mg
-              </MedicineItem>
-            ))}
-          </ul>
-        </DaySection>
-      ))}
-    </Container>
+    <div style={{ padding: '2rem' }}>
+      <h1>Medicines for the Week</h1>
+      <MedicineWeek weeklyMeds={medsByDay} />
+    </div>
   );
 }

@@ -6,7 +6,7 @@ import openai
 import os
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})  # Allow CORS on all /api routes
+CORS(app, resources={r"/*": {"origins": "*"}})  # Allow CORS for all routes to avoid issues
 
 create_tables()
 
@@ -15,13 +15,15 @@ def reset_db():
     seed_data()
     return {"message": "✅ Database reset with 10 records per table!"}
 
-# ----------------- Patients -----------------
+
+# Patients endpoints
 @app.route("/patients", methods=["GET"])
 def get_patients():
     conn = get_db_connection()
     patients = conn.execute("SELECT * FROM patients").fetchall()
     conn.close()
     return jsonify([dict(row) for row in patients])
+
 
 @app.route("/patients", methods=["POST"])
 def add_patient():
@@ -33,13 +35,15 @@ def add_patient():
     conn.close()
     return jsonify({"message": "Patient added ✅"})
 
-# ----------------- Doctors -----------------
+
+# Doctors endpoints - key change: return doctors from DB
 @app.route("/doctors", methods=["GET"])
 def get_doctors():
     conn = get_db_connection()
-    doctors = conn.execute("SELECT * FROM doctors").fetchall()
+    doctors = conn.execute("SELECT id, name, specialization FROM doctors").fetchall()
     conn.close()
     return jsonify([dict(row) for row in doctors])
+
 
 @app.route("/doctors", methods=["POST"])
 def add_doctor():
@@ -51,7 +55,8 @@ def add_doctor():
     conn.close()
     return jsonify({"message": "Doctor added ✅"})
 
-# ----------------- Appointments -----------------
+
+# Appointments endpoints
 @app.route("/appointments", methods=["GET"])
 def get_appointments():
     conn = get_db_connection()
@@ -65,6 +70,7 @@ def get_appointments():
     conn.close()
     return jsonify([dict(row) for row in appts])
 
+
 @app.route("/appointments", methods=["POST"])
 def add_appointment():
     data = request.get_json()
@@ -75,13 +81,15 @@ def add_appointment():
     conn.close()
     return jsonify({"message": "Appointment added ✅"})
 
-# ----------------- Medicine Info -----------------
+
+# Medicine info endpoints
 @app.route("/medicine_info", methods=["GET"])
 def get_medicine_info():
     conn = get_db_connection()
     meds = conn.execute("SELECT * FROM medicine_info").fetchall()
     conn.close()
     return jsonify([dict(row) for row in meds])
+
 
 @app.route("/medicine_info", methods=["POST"])
 def add_medicine_info():
@@ -93,7 +101,8 @@ def add_medicine_info():
     conn.close()
     return jsonify({"message": "Medicine info added ✅"})
 
-# ----------------- Medications -----------------
+
+# Medications endpoints
 @app.route("/medications", methods=["GET"])
 def get_medications():
     conn = get_db_connection()
@@ -109,6 +118,7 @@ def get_medications():
     conn.close()
     return jsonify([dict(row) for row in meds])
 
+
 @app.route("/medications", methods=["POST"])
 def add_medication():
     data = request.get_json()
@@ -119,7 +129,8 @@ def add_medication():
     conn.close()
     return jsonify({"message": "Medication added ✅"})
 
-# ----------------- Symptom Checker Chatbot -----------------
+
+# Symptom checker chatbot - same as before
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route("/api/symptom-chatbot", methods=["POST"])
@@ -137,7 +148,8 @@ def symptom_chatbot():
     except Exception:
         return jsonify({'reply': "Sorry, something went wrong. Please try again later."}), 500
 
-# ----------------- Medicine Price Comparison -----------------
+
+# Medicine price comparison endpoint
 @app.route("/api/medicine_data", methods=["GET"])
 def get_medicine_data():
     medicine_name = request.args.get("name")
@@ -157,7 +169,6 @@ def get_medicine_data():
     if not rows:
         return jsonify({"error": "Medicine not found"}), 404
 
-    # Format response
     medicines = []
     for i, row in enumerate(rows):
         medicines.append({
@@ -170,5 +181,6 @@ def get_medicine_data():
 
     return jsonify(medicines)
 
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)  # Listen on all interfaces for frontend connection
