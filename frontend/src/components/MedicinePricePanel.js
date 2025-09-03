@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import './MedicinePricePanel.css'; // Optional: for custom styling
+import './MedicinePricePanel.css';
 
 const MedicinePricePanel = () => {
   const [medicineName, setMedicineName] = useState('');
@@ -11,13 +11,15 @@ const MedicinePricePanel = () => {
   const [error, setError] = useState('');
 
   const handleSearch = async () => {
-    if (!medicineName) {
-      setError('Please enter a medicine name.');
+    if (!medicineName.trim()) {
+      setError('⚠️ Please enter a medicine name.');
       return;
     }
 
     setLoading(true);
     setError('');
+    setMedicineData(null);
+
     try {
       // 🔥 Directly call Flask backend (skip proxy issues)
       const response = await axios.get(
@@ -25,7 +27,7 @@ const MedicinePricePanel = () => {
       );
       setMedicineData(response.data);
     } catch (err) {
-      setError('Failed to fetch data. Please try again later.');
+      setError('❌ Failed to load medicine comparison data.');
     } finally {
       setLoading(false);
     }
@@ -33,7 +35,7 @@ const MedicinePricePanel = () => {
 
   return (
     <div className="medicine-price-panel">
-      <h2>Medicine Price Comparison</h2>
+      <h2>💊 Medicine Price Comparison</h2>
       <input
         type="text"
         value={medicineName}
@@ -46,30 +48,33 @@ const MedicinePricePanel = () => {
 
       {error && <p className="error">{error}</p>}
 
-      {medicineData && medicineData.medicine && (
-        <div className="medicine-details">
-          {medicineData.medicine.map((med, idx) => (
-            <div key={idx} className="medicine-card">
-              <h3>Brand: {med.brand_name}</h3>
-              <p>Generic: {med.generic_name}</p>
-              <p>Brand Price: ₹{med.brand_price}</p>
-              <p>Generic Price: ₹{med.generic_price}</p>
+      {medicineData.length > 0 && (
+        <div className="medicine-results">
+          {medicineData.map((med, idx) => (
+            <div key={idx} className="medicine-details">
+              <h3>Brand: {med.brand.name}</h3>
+              <p>Price: ₹{med.brand.price}</p>
+              <h4>Generic Alternatives:</h4>
+              <ul>
+                {med.generics.map((generic, index) => (
+                  <li key={index}>
+                    <strong>{generic.name}</strong> - ₹{generic.price}
+                    <button onClick={() => handleContactStore(generic.storeId)}>
+                      Contact Store
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
-
-          <h4>Available Stores:</h4>
-          <ul>
-            {medicineData.stores.map((store, index) => (
-              <li key={index}>
-                <strong>{store.name}</strong> - {store.contact} 
-                {store.delivery ? ' 🚚 Delivery Available' : ' ❌ No Delivery'}
-              </li>
-            ))}
-          </ul>
         </div>
       )}
     </div>
   );
+};
+
+const handleContactStore = (storeName) => {
+  alert(`📞 Contacting ${storeName}...`);
 };
 
 export default MedicinePricePanel;
